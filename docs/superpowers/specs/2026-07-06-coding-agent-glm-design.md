@@ -17,14 +17,17 @@ This version does not include multi-user authentication, background job queues, 
 
 ## Architecture
 
-The project is split into a reusable core and a thin CLI:
+The project is split into a pluggable core and a thin CLI:
 
-- `agentintelligence.bailian` owns Bailian GLM configuration and chat completion calls.
-- `agentintelligence.workspace` owns repository-scoped file and command operations.
-- `agentintelligence.agent` owns the observe-act loop and action protocol.
-- `agentintelligence.cli` parses command-line arguments and runs the core agent.
+- `agentintelligence.models` defines the `ChatModel` protocol; `bailian.py` implements the Aliyun Bailian adapter.
+- `agentintelligence.workspace` owns repository-scoped file and command operations used by tools.
+- `agentintelligence.tools` defines the `Tool` protocol, concrete filesystem/shell tools, and `ToolRegistry`.
+- `agentintelligence.context` owns conversation history and system prompt construction.
+- `agentintelligence.loop` owns JSON action parsing and the generic `ReActLoop`.
+- `agentintelligence.agent` wires model, registry, context, and loop together.
+- `agentintelligence.cli` parses command-line arguments and runs the assembled agent.
 
-The CLI uses the same core classes that a future HTTP API or Web backend can import.
+The CLI, a future HTTP API, or a Web backend can all import the same `ReActLoop`, `ToolRegistry`, and `ConversationContext` primitives.
 
 ## Agent Protocol
 
@@ -50,4 +53,7 @@ Tests cover:
 
 - Bailian OpenAI-compatible request shape and environment configuration.
 - Workspace file, command, and path-safety behavior.
-- Agent action execution, invalid JSON handling, and tool-error observations.
+- Tool registry dispatch and duplicate registration.
+- Conversation context history and trimming.
+- ReAct loop execution with registry-backed tools.
+- Agent facade behavior, invalid JSON handling, and tool-error observations.

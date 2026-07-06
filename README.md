@@ -2,11 +2,21 @@
 
 AgentIntelligence is a minimal coding agent powered by Aliyun Bailian GLM models.
 
-The first version focuses on a reusable agent core plus a CLI wrapper:
+The project is built as a pluggable agent core plus a thin CLI wrapper:
+
+- `models/` — chat model adapters (`ChatModel` protocol, Bailian GLM client)
+- `tools/` — pluggable tools and `ToolRegistry` dispatch
+- `context/` — conversation history and system prompt building
+- `loop/` — generic ReAct loop and JSON action parsing
+- `workspace.py` — repository sandbox used by filesystem/shell tools
+- `agent.py` — assembly layer that wires the core together
+- `cli.py` — command-line entry point
+
+Capabilities:
 
 - reads repository files
 - writes files inside the workspace
-- runs shell commands in the workspace
+- optionally runs shell commands in the workspace
 - asks an Aliyun Bailian GLM model for the next coding action
 - iterates until the model returns a `finish` action
 
@@ -54,6 +64,36 @@ If your shell cannot find the installed script, run the module directly:
 
 ```bash
 python3 -m agentintelligence.cli "Read this repo and add a hello world script" --workspace .
+```
+
+## Pluggable core
+
+You can reuse the core without the CLI:
+
+```python
+from agentintelligence.agent import CodingAgent
+from agentintelligence.bailian import BailianConfig, BailianGLMClient
+from agentintelligence.workspace import Workspace
+
+workspace = Workspace(".", allow_commands=True)
+agent = CodingAgent(model=BailianGLMClient(BailianConfig.from_env()), workspace=workspace)
+result = agent.run("Fix the failing tests")
+```
+
+To add a custom tool, pass it through `extra_tools` when creating the agent:
+
+```python
+class GrepTool:
+    name = "grep"
+
+    def execute(self, params):
+        return "matches: example"
+
+agent = CodingAgent(
+    model=BailianGLMClient(BailianConfig.from_env()),
+    workspace=workspace,
+    extra_tools=[GrepTool()],
+)
 ```
 
 ## Agent action protocol

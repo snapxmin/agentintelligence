@@ -87,3 +87,31 @@ def test_agent_reports_missing_required_action_fields_as_observations(tmp_path):
 
     assert result.finished is True
     assert "requires string field: content" in result.steps[0].observation
+
+
+def test_agent_accepts_custom_registered_tools(tmp_path):
+    workspace = Workspace(tmp_path)
+
+    class EchoTool:
+        name = "echo"
+
+        def execute(self, params):
+            return params["message"]
+
+    model = ScriptedModel(
+        [
+            '{"action": "echo", "message": "custom-tool"}',
+            '{"action": "finish", "message": "done"}',
+        ]
+    )
+    agent = CodingAgent(
+        model=model,
+        workspace=workspace,
+        max_steps=2,
+        extra_tools=[EchoTool()],
+    )
+
+    result = agent.run("Use custom tool")
+
+    assert result.finished is True
+    assert result.steps[0].observation == "custom-tool"
