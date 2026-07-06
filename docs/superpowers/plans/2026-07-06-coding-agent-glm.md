@@ -50,7 +50,7 @@ Expected: FAIL with `ModuleNotFoundError: No module named 'agentintelligence.bai
 
 Implement `BailianConfig` and `BailianGLMClient.chat()` using Bailian's OpenAI-compatible `/chat/completions` endpoint.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `python3 -m pytest tests/test_bailian_client.py -v`
 
@@ -81,7 +81,7 @@ Expected: FAIL with `ModuleNotFoundError: No module named 'agentintelligence.wor
 
 Implement safe path resolution, text read/write, file listing, and command execution.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `python3 -m pytest tests/test_workspace.py -v`
 
@@ -117,7 +117,7 @@ Expected: FAIL with `ModuleNotFoundError: No module named 'agentintelligence.age
 
 Implement JSON parsing, action dispatch, observations, max-step handling, and invalid JSON handling.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `python3 -m pytest tests/test_agent.py -v`
 
@@ -138,7 +138,7 @@ Create `agentintelligence.cli:main` that reads config, builds the agent, and pri
 
 Document environment variables, install command, run command, and JSON action protocol.
 
-- [ ] **Step 3: Run full verification**
+- [x] **Step 3: Run full verification**
 
 Run: `python3 -m pytest`
 
