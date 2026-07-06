@@ -42,3 +42,37 @@ def test_agent_reports_invalid_model_action(tmp_path):
 
     assert result.finished is False
     assert "valid JSON" in result.message
+
+
+def test_agent_turns_tool_errors_into_observations(tmp_path):
+    workspace = Workspace(tmp_path)
+    model = ScriptedModel(
+        [
+            '{"action": "read_file", "path": "../secret.txt"}',
+            '{"action": "finish", "message": "handled error"}',
+        ]
+    )
+    agent = CodingAgent(model=model, workspace=workspace, max_steps=2)
+
+    result = agent.run("Read outside the workspace")
+
+    assert result.finished is True
+    assert result.steps[0].action == "read_file"
+    assert "error:" in result.steps[0].observation
+    assert "outside workspace" in result.steps[0].observation
+
+
+def test_agent_reports_missing_required_action_fields_as_observations(tmp_path):
+    workspace = Workspace(tmp_path)
+    model = ScriptedModel(
+        [
+            '{"action": "write_file", "path": "missing-content.txt"}',
+            '{"action": "finish", "message": "handled missing field"}',
+        ]
+    )
+    agent = CodingAgent(model=model, workspace=workspace, max_steps=2)
+
+    result = agent.run("Write a file without content")
+
+    assert result.finished is True
+    assert "requires string field: content" in result.steps[0].observation

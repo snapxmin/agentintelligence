@@ -63,7 +63,10 @@ class CodingAgent:
             except ValueError as exc:
                 return AgentResult(False, str(exc), steps)
 
-            observation = self._execute(action)
+            try:
+                observation = self._execute(action)
+            except (FileNotFoundError, OSError, ValueError) as exc:
+                observation = "error: " + str(exc)
             steps.append(AgentStep(action=action["action"], observation=observation))
 
             if action["action"] == "finish":

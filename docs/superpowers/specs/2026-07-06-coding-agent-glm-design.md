@@ -9,7 +9,7 @@ Build a first working version of AgentIntelligence as a CLI coding agent powered
 This first version includes:
 
 - Aliyun Bailian OpenAI-compatible chat client.
-- Workspace tools for listing, reading, writing, and running commands inside a repository.
+- Workspace tools for listing, reading, writing, and optionally running commands from a repository.
 - A small agent loop that asks the model for one JSON action at a time.
 - CLI entry point that wires configuration, model, workspace, and agent together.
 
@@ -42,10 +42,12 @@ After each non-finish action, the agent executes the tool, appends an observatio
 
 The first version fails closed on invalid model JSON by returning an unfinished result with an explanatory message. Workspace paths are resolved under the configured root and path traversal outside that root is rejected.
 
+Command execution is disabled by default because setting a command's current working directory is not a sandbox. CLI users must pass `--allow-command` to enable shell commands in an isolated environment. Tool errors such as missing files, rejected paths, missing action fields, and command timeouts are returned to the model as observations instead of crashing the agent loop.
+
 ## Testing
 
 Tests cover:
 
 - Bailian OpenAI-compatible request shape and environment configuration.
 - Workspace file, command, and path-safety behavior.
-- Agent action execution and invalid JSON handling.
+- Agent action execution, invalid JSON handling, and tool-error observations.

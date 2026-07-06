@@ -42,6 +42,14 @@ python3 -m pip install -e '.[dev]'
 agentintelligence "Read this repo and add a hello world script" --workspace .
 ```
 
+Command execution is disabled by default. To let the agent run tests or other shell commands in the workspace, pass:
+
+```bash
+agentintelligence "Run the tests and fix failures" --workspace . --allow-command
+```
+
+`--allow-command` is not a sandbox. It only runs commands with the workspace as the current directory. Use it only in an isolated environment you trust.
+
 If your shell cannot find the installed script, run the module directly:
 
 ```bash

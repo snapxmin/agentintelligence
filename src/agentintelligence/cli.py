@@ -25,6 +25,11 @@ def main(argv: list[str] | None = None) -> int:
         default=20,
         help="Maximum model/tool iterations. Defaults to 20.",
     )
+    parser.add_argument(
+        "--allow-command",
+        action="store_true",
+        help="Allow the agent to run shell commands in the workspace.",
+    )
     args = parser.parse_args(argv)
 
     config = BailianConfig.from_env()
@@ -35,7 +40,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
 
-    workspace = Workspace(Path(args.workspace))
+    workspace = Workspace(Path(args.workspace), allow_commands=args.allow_command)
     agent = CodingAgent(
         model=BailianGLMClient(config),
         workspace=workspace,

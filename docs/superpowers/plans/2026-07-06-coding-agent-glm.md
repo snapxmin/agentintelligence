@@ -13,7 +13,7 @@
 ## File Structure
 
 - `src/agentintelligence/bailian.py`: Bailian GLM OpenAI-compatible client and environment configuration.
-- `src/agentintelligence/workspace.py`: Repository-scoped file and command tools.
+- `src/agentintelligence/workspace.py`: Repository-scoped file tools and explicitly enabled command tools.
 - `src/agentintelligence/agent.py`: JSON action protocol and observe-act loop.
 - `src/agentintelligence/cli.py`: CLI argument parsing and runtime wiring.
 - `tests/test_bailian_client.py`: Bailian client tests.
@@ -79,7 +79,7 @@ Expected: FAIL with `ModuleNotFoundError: No module named 'agentintelligence.wor
 
 - [x] **Step 3: Write minimal implementation**
 
-Implement safe path resolution, text read/write, file listing, and command execution.
+Implement safe path resolution, text read/write, file listing, command execution default-off behavior, and command timeout handling.
 
 - [x] **Step 4: Run test to verify it passes**
 
@@ -115,7 +115,7 @@ Expected: FAIL with `ModuleNotFoundError: No module named 'agentintelligence.age
 
 - [x] **Step 3: Write minimal implementation**
 
-Implement JSON parsing, action dispatch, observations, max-step handling, and invalid JSON handling.
+Implement JSON parsing, action dispatch, observations, max-step handling, invalid JSON handling, and tool-error observations.
 
 - [x] **Step 4: Run test to verify it passes**
 
