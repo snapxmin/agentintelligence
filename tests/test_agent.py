@@ -44,6 +44,17 @@ def test_agent_reports_invalid_model_action(tmp_path):
     assert "valid JSON" in result.message
 
 
+def test_agent_reports_json_without_action_as_invalid(tmp_path):
+    workspace = Workspace(tmp_path)
+    model = ScriptedModel(['{"path": "README.md"}'])
+    agent = CodingAgent(model=model, workspace=workspace, max_steps=1)
+
+    result = agent.run("Do something")
+
+    assert result.finished is False
+    assert "valid JSON action" in result.message
+
+
 def test_agent_turns_tool_errors_into_observations(tmp_path):
     workspace = Workspace(tmp_path)
     model = ScriptedModel(

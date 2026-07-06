@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import signal
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -52,26 +54,29 @@ class Workspace:
                 stdout="",
                 stderr="command execution is disabled; rerun with explicit command permission",
             )
+        process = subprocess.Popen(
+            command,
+            cwd=self.root,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            start_new_session=True,
+            shell=isinstance(command, str),
+        )
         try:
-            completed = subprocess.run(
-                command,
-                cwd=self.root,
-                text=True,
-                capture_output=True,
-                timeout=timeout,
-                shell=isinstance(command, str),
-                check=False,
-            )
-        except subprocess.TimeoutExpired as exc:
+            stdout, stderr = process.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            _kill_process_group(process.pid)
+            stdout, stderr = process.communicate()
             return CommandResult(
                 exit_code=124,
-                stdout=_output_to_text(exc.stdout),
+                stdout=stdout,
                 stderr="command timed out after " + str(timeout) + " seconds",
             )
         return CommandResult(
-            exit_code=completed.returncode,
-            stdout=completed.stdout,
-            stderr=completed.stderr,
+            exit_code=process.returncode,
+            stdout=stdout,
+            stderr=stderr,
         )
 
     def _resolve(self, path: str) -> Path:
@@ -83,9 +88,8 @@ class Workspace:
         return resolved
 
 
-def _output_to_text(output: str | bytes | None) -> str:
-    if output is None:
-        return ""
-    if isinstance(output, bytes):
-        return output.decode("utf-8", errors="replace")
-    return output
+def _kill_process_group(pid: int) -> None:
+    try:
+        os.killpg(pid, signal.SIGKILL)
+    except ProcessLookupError:
+        return

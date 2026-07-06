@@ -1,4 +1,5 @@
 import sys
+import time
 
 import pytest
 
@@ -55,3 +56,20 @@ def test_workspace_reports_command_timeout(tmp_path):
 
     assert result.exit_code == 124
     assert "timed out" in result.stderr
+
+
+def test_workspace_timeout_stops_shell_command_children(tmp_path):
+    workspace = Workspace(tmp_path, allow_commands=True)
+
+    result = workspace.run_command(
+        (
+            sys.executable
+            + " -c \"import time; from pathlib import Path; "
+            + "time.sleep(0.8); Path('late.txt').write_text('late')\""
+        ),
+        timeout=0.2,
+    )
+    time.sleep(1)
+
+    assert result.exit_code == 124
+    assert "late.txt" not in workspace.list_files()
